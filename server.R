@@ -76,7 +76,7 @@ shinyServer(function(input, output) {
             dat <- score(x, ans, output.scored=TRUE)$scored
 
             result1 <- cronbach.alpha(dat)
-            result2 <- alpha(dat)
+            result2 <- alpha(dat, check.keys=F)
             list(result1, result2)
         
         } else {
@@ -88,7 +88,7 @@ shinyServer(function(input, output) {
             dat <- score(x, ans, output.scored=TRUE)$scored
 
             result1 <- cronbach.alpha(dat)
-            result2 <- alpha(dat)
+            result2 <- alpha(dat, check.keys=F)
             list(result1, result2)
         
         }
