@@ -77,7 +77,8 @@ shinyServer(function(input, output) {
 
             result1 <- cronbach.alpha(dat)
             result2 <- alpha(dat, check.keys=F)
-            list(result1, result2)
+            result2 <- round(result2$alpha.drop,3)
+            list(result1, "Reliability if the item is dropped/deleted"=result2)
         
         } else {
             x <- read.csv(text=input$text1, sep="\t")
@@ -89,13 +90,153 @@ shinyServer(function(input, output) {
 
             result1 <- cronbach.alpha(dat)
             result2 <- alpha(dat, check.keys=F)
-            list(result1, result2)
+            result2 <- round(result2$alpha.drop,3)
+            list(result1, "Reliability if the item is dropped/deleted"=result2)
         
         }
     })
     
     
     
+    item.analysis <- reactive({
+        if (input$colname == 0) {
+            # Item disctimination
+            x <- read.table(text=input$text1, sep="\t")
+            x <- as.matrix(x)
+            
+            ans <- read.delim(text=input$text2, sep="\t", fill=TRUE, header=FALSE, stringsAsFactors=FALSE)
+            ans <- as.character(ans)
+            
+            dat <- score(x, ans, output.scored=TRUE)$scored
+            dat <- as.data.frame(dat)
+            
+            itemd <- function(data) {
+                alphaRes <- alpha(data,cumulative=T)
+                item.mean <- round(alphaRes$item.stats$mean,3)
+                r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3) #
+                
+                m <- mean(rowSums(data))
+                sd <- sd(rowSums(data))
+                totalDat <- cbind(data,rowSums(data))
+                sortDat <- totalDat[order(-totalDat[,length(totalDat)]),]
+                pbi <- c()
+                itemD <- c()
+                rownames(sortDat) <- c(1:nrow(sortDat))
+                highDat <- head(sortDat,nrow(sortDat) %/% 3)
+                lowDat <- tail(sortDat,nrow(sortDat) %/% 3)
+                for (i in 1:length(data)) {
+                    mhigh <- mean(subset(totalDat[,length(totalDat)],(data[,i] == 1)))
+                    mlow <- mean(subset(totalDat[,length(totalDat)],(data[,i] == 0)))
+                    imean <- mean(data[,i])
+                    itemD[i] <- round((mean(highDat[,i]) - mean(lowDat[,i])),3)
+                    if (imean == 1 || imean == 0) {
+                        pbi[i] <- 0
+                    } else {
+                        pbi[i] <- round(((mhigh - mlow) / sd) * sqrt(imean * (1 - imean)),3)
+                    }
+                }
+                colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
+                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
+                return(colid)
+            }
+            
+            result1 <-  itemd(dat)
+           
+           # AENO
+            x <- read.table(text=input$text1, sep="\t")
+            dat <- as.data.frame(x)
+            
+            aeno.ind <- function(data) {
+                aeno.ind <- c()
+                for (i in 1:ncol(data)) {
+                    x <- table(data[,i])/nrow(data)
+                    ctgr <- c()
+                    for (j in 1:length(x)) {
+                        ctgr[j] <- x[j]*(log10(x[j])/log10(2))
+                    }
+                    aeno.ind[i] <- round(2^(abs((sum(ctgr[1:length(x)])))),3)
+                }
+                aenos <- data.frame(colnames(dat), aeno.ind)
+                colnames(aenos) <- c("Item","AENO")
+                return(aenos)
+            }
+            
+            result2 <- aeno.ind(dat)
+            
+            merge(result1, result2)
+
+
+        } else {
+            # Item disctimination
+            x <- read.csv(text=input$text1, sep="\t")
+            
+            ans <- read.delim(text=input$text2, sep="\t", fill=TRUE, header=FALSE, stringsAsFactors=FALSE)
+            ans <- as.character(ans)
+            
+            dat <- score(x, ans, output.scored=TRUE)$scored
+            dat <- as.data.frame(dat)
+            
+            itemd <- function(data) {
+                alphaRes <- alpha(data,cumulative=T)
+                item.mean <- round(alphaRes$item.stats$mean,3)
+                r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3)
+                
+                m <- mean(rowSums(data))
+                sd <- sd(rowSums(data))
+                totalDat <- cbind(data,rowSums(data))
+                sortDat <- totalDat[order(-totalDat[,length(totalDat)]),]
+                pbi <- c()
+                itemD <- c()
+                rownames(sortDat) <- c(1:nrow(sortDat))
+                highDat <- head(sortDat,nrow(sortDat) %/% 3)
+                lowDat <- tail(sortDat,nrow(sortDat) %/% 3)
+                for (i in 1:length(data)) {
+                    mhigh <- mean(subset(totalDat[,length(totalDat)],(data[,i] == 1)))
+                    mlow <- mean(subset(totalDat[,length(totalDat)],(data[,i] == 0)))
+                    imean <- mean(data[,i])
+                    itemD[i] <- round((mean(highDat[,i]) - mean(lowDat[,i])),3)
+                    if (imean == 1 || imean == 0) {
+                        pbi[i] <- 0
+                    } else {
+                        pbi[i] <- round(((mhigh - mlow) / sd) * sqrt(imean * (1 - imean)),3)
+                    }
+                }
+                colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
+                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
+                return(colid)
+            }
+            
+            result1 <-  itemd(dat)
+            
+            # AENO
+            x <- read.csv(text=input$text1, sep="\t")
+            dat <- as.data.frame(x)
+            
+            aeno.ind <- function(data) {
+                aeno.ind <- c()
+                for (i in 1:ncol(data)) {
+                    x <- table(data[,i])/nrow(data)
+                    ctgr <- c()
+                    for (j in 1:length(x)) {
+                        ctgr[j] <- x[j]*(log10(x[j])/log10(2))
+                    }
+                    aeno.ind[i] <- round(2^(abs((sum(ctgr[1:length(x)])))),3)
+                }
+             aenos <- data.frame(colnames(dat), aeno.ind)
+             colnames(aenos) <- c("Item","AENO")
+             return(aenos)
+            }
+            
+            result2 <- aeno.ind(dat)
+
+            merge(result1, result2)
+                
+        }
+    })
+
+
+
+
     distractor <- reactive({
         
       if (input$type == "frequency") {
@@ -159,7 +300,7 @@ shinyServer(function(input, output) {
             ans <- as.character(ans)
             x <- score(x, ans, output.scored=TRUE)$scored
             
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
 
 
         } else {
@@ -170,7 +311,7 @@ shinyServer(function(input, output) {
             
             x <- score(x, ans, output.scored=TRUE)$scored
 
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
         }
 
             simple.bincount <- function(x, breaks) {
@@ -221,7 +362,7 @@ shinyServer(function(input, output) {
             ans <- as.character(ans)
             x <- score(x, ans, output.scored=TRUE)$scored
             
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
             
             
         } else {
@@ -232,7 +373,7 @@ shinyServer(function(input, output) {
             
             x <- score(x, ans, output.scored=TRUE)$scored
             
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
         }
         
         boxplot(x, horizontal=TRUE, xlab= "Mean and +/-1 SD are displayed in red.")
@@ -252,7 +393,7 @@ shinyServer(function(input, output) {
             ans <- as.character(ans)
             x <- score(x, ans, output.scored=TRUE)$scored
             
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
             
             
         } else {
@@ -263,7 +404,7 @@ shinyServer(function(input, output) {
             
             x <- score(x, ans, output.scored=TRUE)$scored
             
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
         }
 
         list(ks.test(scale(x), "pnorm"), shapiro.test(x))
@@ -280,7 +421,7 @@ shinyServer(function(input, output) {
             ans <- as.character(ans)
             x <- score(x, ans, output.scored=TRUE)$scored
             
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
         
         } else {
             x <- read.csv(text=input$text1, sep="\t")
@@ -290,13 +431,24 @@ shinyServer(function(input, output) {
             
             x <- score(x, ans, output.scored=TRUE)$scored
             
-            x <- rowMeans(x, na.rm=T)
+            x <- rowSums(x, na.rm=T)
 
         }
 
         qqnorm(x, las=1)
         qqline(x, col=2)
     })
+
+
+
+    info <- reactive({
+        info1 <- paste("It was executed on ", date(), ".", sep = "")
+        info2 <- sessionInfo(package=NULL)[[1]]$version.string
+        list(Time = info1, Version = info2)
+    })
+
+
+
 
 
 
@@ -322,12 +474,20 @@ shinyServer(function(input, output) {
         alpha.result()
     })
     
+    output$item.analysis.out <- renderPrint({
+        item.analysis()
+    })
+    
     output$distractor.out <- renderPrint({
         distractor()
     })
 
     output$testnorm.out <- renderPrint({
         testnorm()
+    })
+    
+    output$info.out <- renderPrint({
+        info()
     })
     
 
