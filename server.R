@@ -111,7 +111,7 @@ shinyServer(function(input, output) {
             dat <- as.data.frame(dat)
             
             itemd <- function(data) {
-                alphaRes <- alpha(data,cumulative=T)
+                alphaRes <- alpha(data, cumulative=T, check.keys=F, delete=F)
                 item.mean <- round(alphaRes$item.stats$mean,3)
                 r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3) #
                 
@@ -177,7 +177,7 @@ shinyServer(function(input, output) {
             dat <- as.data.frame(dat)
             
             itemd <- function(data) {
-                alphaRes <- alpha(data,cumulative=T)
+                alphaRes <- alpha(data, cumulative=T, check.keys=F, delete=F)
                 item.mean <- round(alphaRes$item.stats$mean,3)
                 r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3)
                 
@@ -291,7 +291,7 @@ shinyServer(function(input, output) {
    
     
     
-    output$distPlot <- renderPlot({
+    makedistPlot <- function(){
         if (input$colname == 0) {
             x <- read.table(text=input$text1, sep="\t")
             x <- as.matrix(x)
@@ -301,8 +301,8 @@ shinyServer(function(input, output) {
             x <- score(x, ans, output.scored=TRUE)$scored
             
             x <- rowSums(x, na.rm=T)
-
-
+            
+            
         } else {
             x <- read.csv(text=input$text1, sep="\t")
             
@@ -310,30 +310,30 @@ shinyServer(function(input, output) {
             ans <- as.character(ans)
             
             x <- score(x, ans, output.scored=TRUE)$scored
-
+            
             x <- rowSums(x, na.rm=T)
         }
-
-            simple.bincount <- function(x, breaks) {
-                nx <- length(x)
-                nbreaks <- length(breaks)
-                counts <- integer(nbreaks - 1)
-                    for (i in 1:nx) {
-                        lo <- 1
-                        hi <- nbreaks
-                        if (breaks[lo] <= x[i] && x[i] <= breaks[hi]) {
-                                while (hi - lo >= 2) {
-                                new <- (hi + lo) %/% 2
-                                if(x[i] > breaks[new])
-                                lo <- new
-                                else
-                                hi <- new
-                                }
-                            counts[lo] <- counts[lo] + 1
-                        }
+        
+        simple.bincount <- function(x, breaks) {
+            nx <- length(x)
+            nbreaks <- length(breaks)
+            counts <- integer(nbreaks - 1)
+            for (i in 1:nx) {
+                lo <- 1
+                hi <- nbreaks
+                if (breaks[lo] <= x[i] && x[i] <= breaks[hi]) {
+                    while (hi - lo >= 2) {
+                        new <- (hi + lo) %/% 2
+                        if(x[i] > breaks[new])
+                        lo <- new
+                        else
+                        hi <- new
                     }
-            return(counts)
+                    counts[lo] <- counts[lo] + 1
+                }
             }
+            return(counts)
+        }
         
         nclass <- nclass.FD(x)
         breaks <- pretty(x, nclass)
@@ -349,11 +349,17 @@ shinyServer(function(input, output) {
         yfit <- yfit * diff(h$mids[1:2]) * length(x)
         lines(xfit, yfit, col = "blue", lwd = 2)
 
+    }
+    
+    output$distPlot <- renderPlot({
+        print(makedistPlot())
     })
     
     
     
-    output$boxPlot <- renderPlot({
+    
+    
+    makeboxPlot <- function(){
         if (input$colname == 0) {
             x <- read.table(text=input$text1, sep="\t")
             x <- as.matrix(x)
@@ -381,7 +387,15 @@ shinyServer(function(input, output) {
         points(mean(x, na.rm=T), 0.9, pch = 18, col = "red", cex = 2)
         arrows(mean(x, na.rm=T), 0.9, mean(x, na.rm=T) + sd(x, na.rm=T), length = 0.1, angle = 45, col = "red")
         arrows(mean(x, na.rm=T), 0.9, mean(x, na.rm=T) - sd(x, na.rm=T), length = 0.1, angle = 45, col = "red")
+
+    }
+    
+    output$boxPlot <- renderPlot({
+        print(makeboxPlot())
     })
+    
+    
+    
     
     
     testnorm <- reactive({
@@ -411,7 +425,9 @@ shinyServer(function(input, output) {
     })
     
     
-    output$qqPlot <- renderPlot({
+    
+    
+    makeqqPlot <- function(){
         if (input$colname == 0) {
             
             x <- read.table(text=input$text1, sep="\t")
@@ -422,7 +438,7 @@ shinyServer(function(input, output) {
             x <- score(x, ans, output.scored=TRUE)$scored
             
             x <- rowSums(x, na.rm=T)
-        
+            
         } else {
             x <- read.csv(text=input$text1, sep="\t")
             
@@ -432,22 +448,32 @@ shinyServer(function(input, output) {
             x <- score(x, ans, output.scored=TRUE)$scored
             
             x <- rowSums(x, na.rm=T)
-
+            
         }
-
+        
         qqnorm(x, las=1)
         qqline(x, col=2)
+
+    }
+    
+    output$qqPlot <- renderPlot({
+        print(makeqqPlot())
     })
+    
+
 
 
 
     info <- reactive({
-        info1 <- paste("It was executed on ", date(), ".", sep = "")
-        info2 <- sessionInfo(package=NULL)[[1]]$version.string
-        list(Time = info1, Version = info2)
+        info1 <- paste("This analysis was conducted with ", strsplit(R.version$version.string, " \\(")[[1]][1], ".", sep = "")# バージョン情報
+        info2 <- paste("It was executed on ", date(), ".", sep = "")# 実行日時
+        cat(sprintf(info1), "\n")
+        cat(sprintf(info2), "\n")
     })
-
-
+    
+    output$info.out <- renderPrint({
+        info()
+    })
 
 
 
@@ -486,9 +512,35 @@ shinyServer(function(input, output) {
         testnorm()
     })
     
-    output$info.out <- renderPrint({
-        info()
-    })
+    output$downloadDistPlot <- downloadHandler(
+    filename = function() {
+        paste('Distribution-', Sys.Date(), '.pdf', sep='')
+    },
+    content = function(FILE=NULL) {
+        pdf(file=FILE)
+		print(makedistPlot())
+		dev.off()
+	})
+    
+    output$downloadBoxPlot <- downloadHandler(
+    filename = function() {
+        paste('Boxplot-', Sys.Date(), '.pdf', sep='')
+    },
+    content = function(FILE=NULL) {
+        pdf(file=FILE)
+		print(makeboxPlot())
+		dev.off()
+	})
+    
+    output$downloadQQPlot <- downloadHandler(
+    filename = function() {
+        paste('QQplot-', Sys.Date(), '.pdf', sep='')
+    },
+    content = function(FILE=NULL) {
+        pdf(file=FILE)
+		print(makeqqPlot())
+		dev.off()
+	})
     
 
 })
