@@ -11,6 +11,14 @@ shinyUI(bootstrapPage(
 
         tabPanel("Main",
 
+#h3("Executing the analysis"),
+#p('If you input a new dataset, click on this button to execute the analysis.'),
+
+#submitButton("Compute"),
+
+#br(),
+#br(),
+
             strong('Option:'),
 
             checkboxInput("colname", label = "The input data includes variable names (the header) in the first row.", TRUE),
@@ -65,11 +73,15 @@ shinyUI(bootstrapPage(
             br(),
 
             h3("Histogram of the total score"),
+            downloadButton('downloadDistPlot', 'Download the plot as pdf'),
+
             plotOutput("distPlot"),
 
             br(),
 
             h3("Box plot with individual data points"),
+            downloadButton('downloadBoxPlot', 'Download the plot as pdf'),
+
             plotOutput("boxPlot"),
 
             br(),
@@ -80,8 +92,11 @@ shinyUI(bootstrapPage(
             br(),
 
             h3("Q-Q plot"),
+            downloadButton('downloadQQPlot', 'Download the plot as pdf'),
+
             plotOutput("qqPlot", width="70%"),
 
+            br(),
             br(),
 
             strong('R session info'),
@@ -100,16 +115,6 @@ shinyUI(bootstrapPage(
 
             br(),
 
-            strong('Citation'),
-            p('To cite R in publications use:',br(),
-              'R Core Team (2013). R: A language and environment for statistical computing.', br(),
-              '  R Foundation for Statistical Computing, Vienna, Austria. URL',a('http://www.R-project.org/', href='http://www.R-project.org/', target="_blank")),
-
-            p('The R Core Team and R package developers have invested a lot of time and effort in creating R', br(),
-              'and its packages, so please cite them accordiingly when using R for data analysis.'),
-
-            br(),
-
             strong('List of Packages Used'), br(),
             code('library(shiny)'),br(),
             code('library(shinyAce)'),br(),
@@ -117,7 +122,6 @@ shinyUI(bootstrapPage(
             code('library(ltm)'),br(),
             code('library(CTT)'),br(),
 
-            br(),
             br(),
 
             strong('Code'),
