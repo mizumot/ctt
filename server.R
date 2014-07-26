@@ -474,23 +474,14 @@ shinyServer(function(input, output) {
     output$info.out <- renderPrint({
         info()
     })
-
-
-
-
-
+    
+    
+    
+    
     output$check <- renderTable({
         head(check(), n = 10)
     }, digits = 0)
-
-    output$downloadData <- downloadHandler(
-        filename = function() {
-            paste('Data-', Sys.Date(), '.csv', sep='')
-        },
-        content = function(file) {
-            write.csv(check(), file)
-        }
-    )
+    
 
     output$textarea.out <- renderPrint({
         bs()
@@ -511,36 +502,5 @@ shinyServer(function(input, output) {
     output$testnorm.out <- renderPrint({
         testnorm()
     })
-    
-    output$downloadDistPlot <- downloadHandler(
-    filename = function() {
-        paste('Distribution-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(FILE=NULL) {
-        pdf(file=FILE)
-		print(makedistPlot())
-		dev.off()
-	})
-    
-    output$downloadBoxPlot <- downloadHandler(
-    filename = function() {
-        paste('Boxplot-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(FILE=NULL) {
-        pdf(file=FILE)
-		print(makeboxPlot())
-		dev.off()
-	})
-    
-    output$downloadQQPlot <- downloadHandler(
-    filename = function() {
-        paste('QQplot-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(FILE=NULL) {
-        pdf(file=FILE)
-		print(makeqqPlot())
-		dev.off()
-	})
-    
 
 })
