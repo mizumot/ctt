@@ -1,5 +1,5 @@
-
 library(shiny)
+library(shinyAce)
 
 
 shinyUI(bootstrapPage(
@@ -38,7 +38,9 @@ shinyUI(bootstrapPage(
 
             h3("Checking the 1-0 converted data"),
             p('Only the first 10 observations are displayed.'),
-            downloadButton('downloadData', 'Download the 1-0 data file'),
+            p('If you want to download the converted data, use',
+            a('Binary (1-0) Data Converter', href='https://langtest.shinyapps.io/biconv/', target="_blank"), '.'),
+
             tableOutput("check"),
 
             br(),
@@ -73,14 +75,12 @@ shinyUI(bootstrapPage(
             br(),
 
             h3("Histogram of the total score"),
-            downloadButton('downloadDistPlot', 'Download the plot as pdf'),
 
             plotOutput("distPlot"),
 
             br(),
 
             h3("Box plot with individual data points"),
-            downloadButton('downloadBoxPlot', 'Download the plot as pdf'),
 
             plotOutput("boxPlot"),
 
@@ -92,8 +92,7 @@ shinyUI(bootstrapPage(
             br(),
 
             h3("Q-Q plot"),
-            downloadButton('downloadQQPlot', 'Download the plot as pdf'),
-
+ 
             plotOutput("qqPlot", width="70%"),
 
             br(),
