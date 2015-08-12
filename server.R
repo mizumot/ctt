@@ -3,6 +3,7 @@ library(shinyAce)
 library(psych)
 library(ltm)
 library(CTT)
+library(beeswarm)
 
 
 
@@ -383,7 +384,7 @@ shinyServer(function(input, output) {
         }
         
         boxplot(x, horizontal=TRUE, xlab= "Mean and +/-1 SD are displayed in red.")
-        stripchart(x, pch = 16, add = TRUE)
+        beeswarm(x, horizontal=TRUE, col = 4, pch = 16, add = TRUE)
         points(mean(x, na.rm=T), 0.9, pch = 18, col = "red", cex = 2)
         arrows(mean(x, na.rm=T), 0.9, mean(x, na.rm=T) + sd(x, na.rm=T), length = 0.1, angle = 45, col = "red")
         arrows(mean(x, na.rm=T), 0.9, mean(x, na.rm=T) - sd(x, na.rm=T), length = 0.1, angle = 45, col = "red")

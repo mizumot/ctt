@@ -68,7 +68,7 @@ shinyUI(bootstrapPage(
             h3("Distractor analysis"),
 
             radioButtons("type", "",
-                        list("Frequency" = "frequency", "Proportion" = "proportion"), 'Frequency'),
+                        list("Frequency" = "frequency", "Proportion" = "proportion"), selected = "frequency"),
 
             verbatimTextOutput("distractor.out"),
 
