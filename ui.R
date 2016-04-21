@@ -39,7 +39,7 @@ shinyUI(bootstrapPage(
             h3("Checking the 1-0 converted data"),
             p('Only the first 10 observations are displayed.'),
             p('If you want to download the converted data, use',
-            a('Binary (1-0) Data Converter', href='https://langtest.shinyapps.io/biconv/', target="_blank"), '.'),
+            a('Binary (1-0) Data Converter', href='https://langtest4.shinyapps.io/biconv/', target="_blank"), '.'),
 
             tableOutput("check"),
 
