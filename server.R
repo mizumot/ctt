@@ -112,13 +112,24 @@ shinyServer(function(input, output) {
             dat <- as.data.frame(dat)
             
             itemd <- function(data) {
-                alphaRes <- alpha(data, cumulative=T, check.keys=F, delete=F)
-                item.mean <- round(alphaRes$item.stats$mean,3)
-                r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3) #
-                
+                #alphaRes <- alpha(data, cumulative=T, check.keys=F, delete=F)
+                #item.mean <- round(alphaRes$item.stats$mean,3)
+                item.mean <- round(colMeans(data), 3)
+
                 m <- mean(rowSums(data))
                 sd <- sd(rowSums(data))
                 totalDat <- cbind(data,rowSums(data))
+
+                #r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3)
+                r.dropped <- function(data) {
+                r.dropped <- c()
+                    for (i in 1:ncol(data)) {
+                        r.dropped[i] <- round(cor(data[,i], rowSums(data)-data[,i]), 3)
+                    }
+                    return(r.dropped)
+                }
+                r.drop <- r.dropped(data)
+
                 sortDat <- totalDat[order(-totalDat[,length(totalDat)]),]
                 pbi <- c()
                 itemD <- c()
@@ -136,8 +147,11 @@ shinyServer(function(input, output) {
                         pbi[i] <- round(((mhigh - mlow) / sd) * sqrt(imean * (1 - imean)),3)
                     }
                 }
-                colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
-                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
+                #colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
+                colid <- data.frame(colnames(dat), item.mean, r.drop, itemD)
+                # colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
+                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","U-L_DISC")
+
                 return(colid)
             }
             
@@ -178,13 +192,24 @@ shinyServer(function(input, output) {
             dat <- as.data.frame(dat)
             
             itemd <- function(data) {
-                alphaRes <- alpha(data, cumulative=T, check.keys=F, delete=F)
-                item.mean <- round(alphaRes$item.stats$mean,3)
-                r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3)
+                #alphaRes <- alpha(data, cumulative=T, check.keys=F, delete=F)
+                #item.mean <- round(alphaRes$item.stats$mean,3)
+                item.mean <- round(colMeans(data), 3)
                 
                 m <- mean(rowSums(data))
                 sd <- sd(rowSums(data))
                 totalDat <- cbind(data,rowSums(data))
+
+                #r.drop <- round(ifelse(is.na(alphaRes$item.stats$r.drop), 0, alphaRes$item.stats$r.drop),3)
+                r.dropped <- function(data) {
+                    r.dropped <- c()
+                    for (i in 1:ncol(data)) {
+                        r.dropped[i] <- round(cor(data[,i], rowSums(data)-data[,i]), 3)
+                    }
+                    return(r.dropped)
+                }
+                r.drop <- r.dropped(data)
+                
                 sortDat <- totalDat[order(-totalDat[,length(totalDat)]),]
                 pbi <- c()
                 itemD <- c()
@@ -202,8 +227,11 @@ shinyServer(function(input, output) {
                         pbi[i] <- round(((mhigh - mlow) / sd) * sqrt(imean * (1 - imean)),3)
                     }
                 }
-                colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
-                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
+                #colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
+                colid <- data.frame(colnames(dat), item.mean, r.drop, itemD)
+                #colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
+                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","U-L_DISC")
+
                 return(colid)
             }
             

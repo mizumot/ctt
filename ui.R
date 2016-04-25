@@ -59,7 +59,7 @@ shinyUI(bootstrapPage(
             verbatimTextOutput("item.analysis.out"),
             p('Item_Mean: item facility (IF)', br(),
             'I-R_Correl: Item-Remainder score correlation or "corrected item-total correlation"', br(),
-            'I-T_Correl: Item-Total score correlation or "point-biserial correlation"', br(),
+            #'I-T_Correl: Item-Total score correlation or "point-biserial correlation"', br(),
             'U-L_DISC: item discrimination (upper 1/3 - lower 1/3)', br(),
             'AENO: actual equivalant number of options (out of the total number of options)'),
 
