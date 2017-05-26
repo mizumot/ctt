@@ -47,8 +47,15 @@ shinyServer(function(input, output) {
             total <- rowSums(dat, na.rm=T)
             result <- describe(total)[2:13]
             row.names(result) <- "Total   "
-            result
-        
+            #result
+            
+            relv <- as.numeric(score(x, ans, output.scored=TRUE, rel=TRUE)$reliability[3])
+            stdv <- as.numeric(describe(total)[4])
+            sem <- round(stdv * sqrt(1 - relv), 2)
+            
+            print(result)
+            cat("\n","Standard error of measurement (SEM):", sem, "\n")
+            
         } else {
             
             x <- read.csv(text=input$text1, sep="\t")
@@ -61,7 +68,15 @@ shinyServer(function(input, output) {
             total <- rowSums(dat, na.rm=T)
             result <- describe(total)[2:13]
             row.names(result) <- "Total   "
-            result
+            #result
+            
+            relv <- as.numeric(score(x, ans, output.scored=TRUE, rel=TRUE)$reliability[3])
+            stdv <- as.numeric(describe(total)[4])
+            sem <- round(stdv * sqrt(1 - relv), 2)
+            
+            print(result)
+            cat("\n","Standard error of measurement (SEM):", sem, "\n")
+          
         }
     })
     
@@ -79,7 +94,12 @@ shinyServer(function(input, output) {
             result1 <- cronbach.alpha(dat)
             result2 <- alpha(dat, check.keys=F)
             result2 <- round(result2$alpha.drop,3)
-            list(result1, "Reliability if the item is dropped/deleted"=result2)
+            colnames(result2) <- ""
+
+            print(result1)
+            cat("\n", "Reliability if the item is dropped/deleted", "\n")
+            print(result2[1])
+            #list(result1, "Reliability if the item is dropped/deleted"=result2)
         
         } else {
             x <- read.csv(text=input$text1, sep="\t")
@@ -92,7 +112,12 @@ shinyServer(function(input, output) {
             result1 <- cronbach.alpha(dat)
             result2 <- alpha(dat, check.keys=F)
             result2 <- round(result2$alpha.drop,3)
-            list(result1, "Reliability if the item is dropped/deleted"=result2)
+            colnames(result2) <- ""
+
+            print(result1)
+            cat("\n", "Reliability if the item is dropped/deleted", "\n")
+            print(result2[1])
+            #list(result1, "Reliability if the item is dropped/deleted"=result2)
         
         }
     })
@@ -147,10 +172,10 @@ shinyServer(function(input, output) {
                         pbi[i] <- round(((mhigh - mlow) / sd) * sqrt(imean * (1 - imean)),3)
                     }
                 }
-                #colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
-                colid <- data.frame(colnames(dat), item.mean, r.drop, itemD)
-                # colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
-                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","U-L_DISC")
+                colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
+                #colid <- data.frame(colnames(dat), item.mean, r.drop, itemD)
+                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","r_pbi","U-L_DISC")
+                #colnames(colid) <- c("Item","Item_Mean","I-R_Correl","U-L_DISC")
 
                 return(colid)
             }
@@ -227,10 +252,10 @@ shinyServer(function(input, output) {
                         pbi[i] <- round(((mhigh - mlow) / sd) * sqrt(imean * (1 - imean)),3)
                     }
                 }
-                #colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
-                colid <- data.frame(colnames(dat), item.mean, r.drop, itemD)
-                #colnames(colid) <- c("Item","Item_Mean","I-R_Correl","I-T_Correl","U-L_DISC")
-                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","U-L_DISC")
+                colid <- data.frame(colnames(dat), item.mean, r.drop, pbi, itemD)
+                #colid <- data.frame(colnames(dat), item.mean, r.drop, itemD)
+                colnames(colid) <- c("Item","Item_Mean","I-R_Correl","r_pbi","U-L_DISC")
+                #colnames(colid) <- c("Item","Item_Mean","I-R_Correl","U-L_DISC")
 
                 return(colid)
             }

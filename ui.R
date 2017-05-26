@@ -59,7 +59,7 @@ shinyUI(bootstrapPage(
             verbatimTextOutput("item.analysis.out"),
             p('Item_Mean: item facility (IF)', br(),
             'I-R_Correl: Item-Remainder score correlation or "corrected item-total correlation"', br(),
-            #'I-T_Correl: Item-Total score correlation or "point-biserial correlation"', br(),
+            'r_pbi: Point-biserial correlation or "item-total correlation"', br(),
             'U-L_DISC: item discrimination (upper 1/3 - lower 1/3)', br(),
             'AENO: actual equivalant number of options (out of the total number of options)'),
 
@@ -161,7 +161,7 @@ shinyUI(bootstrapPage(
 
             strong('Author'),
             p(a("Atsushi MIZUMOTO,", href="http://mizumot.com", target="_blank"),' Ph.D.',br(),
-            'Associate Professor of Applied Linguistics',br(),
+            'Professor of Applied Linguistics',br(),
             'Faculty of Foreign Language Studies /',br(),
             'Graduate School of Foreign Language Education and Research,',br(),
             'Kansai University, Osaka, Japan'),
